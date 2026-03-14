@@ -1,3 +1,45 @@
+server:
+  port: 8085
+
 spring:
   application:
     name: achat-en-ligne-ms
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/achat_en_ligne_db
+    username: postgres
+    password: passer
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  cache:
+    type: redis
+    cache-names:
+      - users
+      - produits
+      - achats
+      - ventes
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
