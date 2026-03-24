@@ -16,7 +16,7 @@ cache:
 
 build:
   stage: build
-  image: maven:3.9.9-eclipse-temurin-17
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean compile
   artifacts:
@@ -26,7 +26,7 @@ build:
 
 test:
   stage: test
-  image: maven:3.9.9-eclipse-temurin-17
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS test
   artifacts:
@@ -40,7 +40,7 @@ test:
 
 package:
   stage: package
-  image: maven:3.9.9-eclipse-temurin-17
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean package -DskipTests
   artifacts:
@@ -50,7 +50,7 @@ package:
 
 dockerhub-image:
   stage: image
-  image: maven:3.9.9-eclipse-temurin-17
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
     - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:latest
