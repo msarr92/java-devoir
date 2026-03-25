@@ -19,34 +19,18 @@ build:
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean compile
-  artifacts:
-    paths:
-      - target/
-    expire_in: 1 week
 
 test:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS test
-  artifacts:
-    when: always
-    reports:
-      junit:
-        - target/surefire-reports/*.xml
-    paths:
-      - target/surefire-reports/
-    expire_in: 1 week
 
 package:
   stage: package
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean package -DskipTests
-  artifacts:
-    paths:
-      - target/*.jar
-    expire_in: 1 week
 
 dockerhub-image:
   stage: image
@@ -56,3 +40,4 @@ dockerhub-image:
     - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:latest
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
