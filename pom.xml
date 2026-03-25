@@ -161,29 +161,28 @@
 					</excludes>
 				</configuration>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>com.google.cloud.tools</groupId>-->
-<!--				<artifactId>jib-maven-plugin</artifactId>-->
-<!--				<version>3.4.3</version>-->
-<!--				<configuration>-->
-<!--					<from>-->
-<!--						<image>eclipse-temurin:17-jre</image>-->
-<!--					</from>-->
-<!--					<to>-->
-<!--						<image>${image.name}</image>-->
-<!--						<auth>-->
-<!--							<username>${env.DOCKERHUB_USERNAME}</username>-->
-<!--							<password>${env.DOCKERHUB_PASSWORD}</password>-->
-<!--						</auth>-->
-<!--					</to>-->
-<!--					<container>-->
-<!--						<mainClass>com.groupeisi.achat_en_ligne_ms.AchatEnLigneMsApplication</mainClass>-->
-<!--						<ports>-->
-<!--							<port>8085</port>-->
-<!--						</ports>-->
-<!--					</container>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.4.3</version>
+				<configuration>
+					<from>
+						<image>eclipse-temurin:21-jre</image>
+					</from>
+					<to>
+						<auth>
+							<username>${env.DOCKERHUB_USERNAME}</username>
+							<password>${env.DOCKERHUB_PASSWORD}</password>
+						</auth>
+					</to>
+					<container>
+						<mainClass>com.groupeisi.achat_en_ligne_ms.AchatEnLigneMsApplication</mainClass>
+						<ports>
+							<port>8085</port>
+						</ports>
+					</container>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
