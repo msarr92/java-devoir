@@ -1,43 +1,83 @@
 stages:
   - build
-  - test
-  - package
-  - image
+  - version
+  - docker-staging
+  - docker-prod
+  - deploy-staging
 
 variables:
+  PROJECT_NAME: achat-en-ligne-ms
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  IMAGE_NAME: "$DOCKERHUB_USERNAME/achat-en-ligne-ms"
+  IMAGE_NAME: "mhdsarr05/achat-en-ligne-ms"
 
 cache:
   key: "${CI_PROJECT_NAME}"
   paths:
     - .m2/repository
 
-build:
+.build-job:
   stage: build
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean compile
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1 week
 
-test:
-  stage: test
-  image: maven:3.9.9-eclipse-temurin-21
+.auto-version-job:
+  stage: version
+  image: alpine:latest
   script:
-    - mvn $MAVEN_CLI_OPTS test
+    - 'echo "Generating version..."'
+    - 'echo "VERSION=$CI_COMMIT_SHORT_SHA" > version.env'
+    - 'cat version.env'
+  artifacts:
+    reports:
+      dotenv: version.env
+    expire_in: 1 week
 
-package:
-  stage: package
+.build-docker-image-job-staging:
+  stage: docker-staging
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - mvn $MAVEN_CLI_OPTS clean package -DskipTests
+    - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:staging-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
 
-dockerhub-image:
-  stage: image
+.build-docker-image-job-prod:
+  stage: docker-prod
   image: maven:3.9.9-eclipse-temurin-21
   script:
-    - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - mvn $MAVEN_CLI_OPTS clean package -DskipTests
     - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:latest
+    - mvn $MAVEN_CLI_OPTS compile jib:build -Dimage=$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+
+.deploy-job-staging:
+  stage: deploy-staging
+  image: alpine:latest
+  script:
+    - 'echo "Deploy staging for $PROJECT_NAME"'
+    - 'echo "Image used: $IMAGE_NAME:staging-$CI_COMMIT_SHORT_SHA"'
+    - 'echo "Ici tu mettras plus tard les vraies commandes de déploiement"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+build-job:
+  extends: .build-job
+
+auto-version-job:
+  extends: .auto-version-job
+
+build-docker-image-job-staging:
+  extends: .build-docker-image-job-staging
+
+build-docker-image-job-prod:
+  extends: .build-docker-image-job-prod
+
+deploy-job-staging:
+  extends: .deploy-job-staging
